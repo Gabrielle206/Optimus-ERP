@@ -75,6 +75,22 @@ public class DatabaseManager {
                 + "ip_origem TEXT,"
                 + "sucesso INTEGER NOT NULL"
                 + ");";
+        
+        String sqlContrato = "CREATE TABLE IF NOT EXISTS Contrato ("
+        		+ "id TEXT PRIMARY KEY,"
+        		+ "id_fornecedor TEXT NOT NULL,"
+        		+ "objeto_contrato TEXT NOT NULL,"
+        		+ "valor REAL NOT NULL,"
+        		+ "data_criacao DATE DEFAULT (DATE('now')),"
+        		+ "data_assinatura_empresa DATE,"
+        		+ "data_assinatura_fornecedor DATE,"
+        		+ "data_vencimento DATE,"
+        		+ "status TEXT NOT NULL,"
+        		+ "assinatura TEXT NOT NULL,"
+        		+ "blockchain_tx_hash TEXT NOT NULL,"
+        		+ "smart_contract_address TEXT NOT NULL,"
+        		+ "nota_fiscal_validada INTEGER NOT NULL"
+        		+ ");";
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
@@ -85,6 +101,7 @@ public class DatabaseManager {
             stmt.execute(sqlItensTitulo);
             stmt.execute(sqlListagemVendas);
             stmt.execute(sqlLogsSeguranca);
+            stmt.execute(sqlContrato);
             
             System.out.println("Banco de dados inicializado com sucesso.");
 
