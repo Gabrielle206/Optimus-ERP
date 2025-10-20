@@ -6,3 +6,5 @@ O software abrange áreas como finanças, estoque, vendas, compras, produção e
 13/10/25 - Inicio.
 
 17/10/25 - Nova tabela criada no banco de dados (Contrato), novas classes (Contrato.java e ContratoDao.java), adicionado o CryptoManager.java e modificado para suportar o Double.
+
+20/10/25 - Classes Blockchain.java e ContratoService.java adicionadas.
