@@ -9,4 +9,4 @@ O software abrange áreas como finanças, estoque, vendas, compras, produção e
 
 20/10/25 - Classes Blockchain.java e ContratoService.java adicionadas.
 
-22/10/25 - JanelaCadastroContrato.java adicionada.
+22/10/25 - JanelaCadastroContrato.java e JanelaListagemContratos.java adicionadas.
