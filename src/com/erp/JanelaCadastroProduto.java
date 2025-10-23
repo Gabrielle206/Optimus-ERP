@@ -42,9 +42,12 @@ public class JanelaCadastroProduto extends JDialog implements LanguageObserver {
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(getParent());
 
-        ImageIcon img = new ImageIcon("iconeerp/logo1.png");
-        setIconImage(img.getImage());
-
+        URL iconURL = getClass().getResource("/iconeerp/logo1.png");
+        if (iconURL != null) {
+            setIconImage(new ImageIcon(iconURL).getImage());
+        } else {
+            System.err.println("Erro: Não foi possível encontrar o ícone 'logo1.png'");
+        }
         JPanel painelFormulario = new JPanel(new GridLayout(5, 2, 5, 5));
         painelFormulario.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
