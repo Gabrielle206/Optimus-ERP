@@ -62,8 +62,12 @@ public class JanelaCadastroTitulo extends JDialog implements LanguageObserver {
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(getParent());
 
-        ImageIcon img = new ImageIcon("iconeerp/logo1.png");
-        setIconImage(img.getImage());
+        URL iconURL = getClass().getResource("/iconeerp/logo1.png");
+        if (iconURL != null) {
+            setIconImage(new ImageIcon(iconURL).getImage());
+        } else {
+            System.err.println("Erro: Não foi possível encontrar o ícone 'logo1.png'");
+        }
 
         JPanel painelMestre = new JPanel(new GridLayout(3, 2, 10, 10));
         painelMestreBorder = BorderFactory.createTitledBorder("");
