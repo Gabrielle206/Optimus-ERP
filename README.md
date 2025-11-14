@@ -10,3 +10,6 @@ O software abrange áreas como finanças, estoque, vendas, compras, produção e
 20/10/25 - Classes Blockchain.java e ContratoService.java adicionadas.
 
 22/10/25 - JanelaCadastroContrato.java e JanelaListagemContratos.java adicionadas.
+
+14/11/25 - Foram criadas as classes: GovConnectClient.java, JanelaGovConnect.java, LicitacaoGenerator.java, Licitacao.java, LicitacaoDAO.java, Proposta.java e PropostaDAO.java. 
+Banco de dados atualizado.
