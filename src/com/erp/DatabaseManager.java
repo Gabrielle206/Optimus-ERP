@@ -92,16 +92,37 @@ public class DatabaseManager {
         		+ "nota_fiscal_validada INTEGER NOT NULL"
         		+ ");";
 
+         String sqlLicitacao = "CREATE TABLE IF NOT EXISTS Licitacao ("
+        		+ "id TEXT PRIMARY KEY,"
+                + "titulo TEXT NOT NULL," 
+                + "descricao TEXT," 
+                + "valor_estimado REAL NOT NULL,"
+                + "orgao TEXT NOT NULL" 
+        		+ ");";
+        
+        String sqlProposta = "CREATE TABLE IF NOT EXISTS Proposta ("
+        		+ "id TEXT PRIMARY KEY,"
+        		+ "licitacao_id TEXT NOT NULL,"
+        		+ "empresa TEXT,"
+        		+ "valor TEXT NOT NULL,"
+        		+ "descricao TEXT,"
+        		+ "data_envio DATE,"
+        		+ "FOREIGN KEY (licitacao_id) REFERENCES Licitacao(id)"
+
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
         	
-            stmt.execute(sqlPessoas);
+            stmt.execute(sqlPessoas); 
             stmt.execute(sqlProdutos);
             stmt.execute(sqlTitulos);
             stmt.execute(sqlItensTitulo);
             stmt.execute(sqlListagemVendas);
             stmt.execute(sqlLogsSeguranca);
-            stmt.execute(sqlContrato);
+            stmt.execute(sqlContratos);
+            stmt.execute(sqlConfiguracao);     
+            stmt.execute(sqlSeedConfiguracao);
+            stmt.execute(sqlLicitacao);
+            stmt.execute(sqlProposta);
             
             System.out.println("Banco de dados inicializado com sucesso.");
 
