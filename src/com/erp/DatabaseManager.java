@@ -22,7 +22,9 @@ public class DatabaseManager {
                 + "senha TEXT,"
                 + "tentativas_falhas INTEGER DEFAULT 0,"
                 + "bloqueado_ate DATETIME,"
-                + "secret_key TEXT"
+                + "secret_key TEXT,"
+                + "cpf TEXT,"
+                + "endereco TEXT"
                 + ");";
 
         String sqlProdutos = "CREATE TABLE IF NOT EXISTS Produtos ("
