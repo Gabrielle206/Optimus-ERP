@@ -94,6 +94,13 @@ public class DatabaseManager {
         		+ "nota_fiscal_validada INTEGER NOT NULL"
         		+ ");";
 
+        String sqlConfiguracao = "CREATE TABLE IF NOT EXISTS Configuracao ("
+                + "chave TEXT PRIMARY KEY,"
+                + "valor TEXT"
+                + ");";
+        
+        String sqlSeedConfiguracao = "INSERT OR IGNORE INTO Configuracao (chave, valor) VALUES ('plano_assinatura', 'Premium');";
+
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
         	
