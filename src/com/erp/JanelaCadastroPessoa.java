@@ -6,6 +6,7 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 import javax.swing.*;
@@ -14,16 +15,13 @@ public class JanelaCadastroPessoa extends JDialog implements LanguageObserver {
 
     private static final long serialVersionUID = 1L;
 
-    private JTextField campoId;
-    private JTextField campoNome;
+    private JTextField campoId, campoNome, campoTelefone, campoCpf, campoEndereco;
     private JComboBox<String> comboTipo;
-    private JTextField campoTelefone;
-    private JPasswordField campoSenha;
-    private JPasswordField campoConfirmarSenha;
+    private JPasswordField campoSenha, campoConfirmarSenha;
     private PessoaDAO pessoaDAO;
     private Pessoa pessoaExistente;
     
-    private JLabel labelId, labelNome, labelTipo, labelTelefone, labelSenha, labelConfirmarSenha;
+    private JLabel labelId, labelNome, labelTipo, labelTelefone, labelCpf, labelEndereco, labelSenha, labelConfirmarSenha;
     private JButton botaoSalvar, botaoVoltar;
     private JPanel painelSenha;
 
@@ -74,7 +72,7 @@ public class JanelaCadastroPessoa extends JDialog implements LanguageObserver {
         painelPrincipal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JPanel painelFormularioCompleto = new JPanel();
-        painelFormularioCompleto.setLayout(new BoxLayout(painelFormularioCompleto, BoxLayout.Y_AXIS)); 
+        painelFormularioCompleto.setLayout(new BoxLayout(painelFormularioCompleto, BoxLayout.Y_AXIS));
 
         JPanel painelFormulario = new JPanel(new GridLayout(0, 2, 5, 5));
         labelId = new JLabel();
@@ -86,6 +84,16 @@ public class JanelaCadastroPessoa extends JDialog implements LanguageObserver {
         painelFormulario.add(labelNome);
         campoNome = new JTextField();
         painelFormulario.add(campoNome);
+        
+        labelCpf = new JLabel(); 
+        painelFormulario.add(labelCpf);
+        campoCpf = new JTextField(); 
+        painelFormulario.add(campoCpf);
+        
+        labelEndereco = new JLabel(); 
+        painelFormulario.add(labelEndereco);
+        campoEndereco = new JTextField();
+        painelFormulario.add(campoEndereco);
 
         labelTipo = new JLabel();
         painelFormulario.add(labelTipo);
@@ -106,10 +114,10 @@ public class JanelaCadastroPessoa extends JDialog implements LanguageObserver {
         painelSenha.add(campoSenha);
         painelSenha.add(labelConfirmarSenha);
         painelSenha.add(campoConfirmarSenha);
-
+        
         painelFormularioCompleto.add(painelFormulario);
         painelFormularioCompleto.add(painelSenha);
-
+        
         painelPrincipal.add(painelFormularioCompleto, BorderLayout.CENTER);
 
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -133,7 +141,7 @@ public class JanelaCadastroPessoa extends JDialog implements LanguageObserver {
     private void atualizarVisibilidadeSenha() {
         boolean mostrar = comboTipo.getSelectedIndex() == 3;
         painelSenha.setVisible(mostrar);
-        pack(); 
+        pack();
     }
     
     @Override
@@ -148,6 +156,8 @@ public class JanelaCadastroPessoa extends JDialog implements LanguageObserver {
         
         labelId.setText(messages.getString("janelaCadastroPessoa.label.id"));
         labelNome.setText(messages.getString("janelaCadastroPessoa.label.nome"));
+        labelCpf.setText(messages.getString("janelaCadastroPessoa.label.cpf"));
+        labelEndereco.setText(messages.getString("janelaCadastroPessoa.label.endereco"));
         labelTipo.setText(messages.getString("janelaCadastroPessoa.label.tipo"));
         labelTelefone.setText(messages.getString("janelaCadastroPessoa.label.telefone"));
         labelSenha.setText(messages.getString("janelaCadastroPessoa.label.senha"));
@@ -170,6 +180,8 @@ public class JanelaCadastroPessoa extends JDialog implements LanguageObserver {
         campoId.setText(pessoaExistente.getId());
         campoId.setEditable(false);
         campoNome.setText(pessoaExistente.getNome());
+        campoCpf.setText(pessoaExistente.getCpf());
+        campoEndereco.setText(pessoaExistente.getEndereco());
         comboTipo.setSelectedIndex(pessoaExistente.getTipo());
         campoTelefone.setText(pessoaExistente.getTelefone());
     }
@@ -178,6 +190,8 @@ public class JanelaCadastroPessoa extends JDialog implements LanguageObserver {
         ResourceBundle messages = LanguageManager.getInstance().getMessages();
         String id = campoId.getText();
         String nome = campoNome.getText();
+        String cpf = campoCpf.getText();
+        String endereco = campoEndereco.getText();
         int tipo = comboTipo.getSelectedIndex();
         String telefone = campoTelefone.getText();
         char[] senha = campoSenha.getPassword();
@@ -206,6 +220,8 @@ public class JanelaCadastroPessoa extends JDialog implements LanguageObserver {
                 return;
             }
             Pessoa novaPessoa = new Pessoa(id, tipo, nome, telefone);
+            novaPessoa.setCpf(cpf);
+            novaPessoa.setEndereco(endereco);
             if (isFuncionario) {
                 novaPessoa.setSenha(new String(senha));
             }
@@ -213,6 +229,8 @@ public class JanelaCadastroPessoa extends JDialog implements LanguageObserver {
             JOptionPane.showMessageDialog(this, messages.getString("janelaCadastroPessoa.dialogo.salvoSucesso"));
         } else {
             pessoaExistente.setNome(nome);
+            pessoaExistente.setCpf(cpf);
+            pessoaExistente.setEndereco(endereco);
             pessoaExistente.setTipo(tipo);
             pessoaExistente.setTelefone(telefone);
             if (isFuncionario && senha.length > 0) {
