@@ -78,7 +78,7 @@ public class DatabaseManager {
                 + "sucesso INTEGER NOT NULL"
                 + ");";
         
-        String sqlContrato = "CREATE TABLE IF NOT EXISTS Contrato ("
+        String sqlContratos = "CREATE TABLE IF NOT EXISTS Contrato ("
         		+ "id TEXT PRIMARY KEY,"
         		+ "id_fornecedor TEXT NOT NULL,"
         		+ "objeto_contrato TEXT NOT NULL,"
