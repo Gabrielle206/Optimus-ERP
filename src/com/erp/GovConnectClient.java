@@ -26,12 +26,6 @@ public class GovConnectClient {
         return lista;
     }
 
-    public List<Proposta> buscarPropostas(String licitacaoId) {
-        System.out.println("[GovConnect] Buscando propostas da licitação " + licitacaoId);
-        PropostaDAO dao = new PropostaDAO();
-        return dao.listarTodas(licitacaoId);
-    }
-
     public void enviarProposta(Proposta proposta) {
         System.out.println("[GovConnect] Enviando proposta (simulação JSON):");
         String json = "{\n" +
