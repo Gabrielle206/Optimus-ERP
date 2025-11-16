@@ -11,7 +11,9 @@ O software abrange áreas como finanças, estoque, vendas, compras, produção e
 
 22/10/25 - JanelaCadastroContrato.java e JanelaListagemContratos.java adicionadas.
 
-14/11/25 - Foram criadas as classes: GovConnectClient.java, JanelaGovConnect.java, LicitacaoGenerator.java, Licitacao.java, LicitacaoDAO.java, Proposta.java e PropostaDAO.java. 
+14/11/25 - Foram criadas as classes: GovConnectClient.java, JanelaGovConnect.java, LicitacaoGenerator.java, Licitacao.java e Proposta.java. 
 Banco de dados e propriedades atualizadas.
 HealthCheckManager.java, JanelaConfiguracao.java e ConfiguracaoDAO.java foram adicionadas.
+
+16/11/25 - Alterações no DataBaseManager.java, JanelaCadastroPessoa.java e ListagemPessoa.java.
 
