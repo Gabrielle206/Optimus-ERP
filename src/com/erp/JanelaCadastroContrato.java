@@ -1,44 +1,60 @@
 package com.erp;
 
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.stream.Collectors;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class JanelaCadastroContrato extends JFrame implements LanguageObserver {
+public class JanelaCadastroContrato extends JDialog implements LanguageObserver {
 
-    private JComboBox<String> comboFornecedorId;
-    private JComboBox<String> comboStatus; 
-    private JTextField campoIdContrato;
-    private JTextField campoObjetoContrato;
-    private JTextField campoValor;
-    private JTextField campoDataVencimento;
+    private static final long serialVersionUID = 1L;
+
+    private JComboBox<Pessoa> comboFornecedor;
+    private JTextField campoObjeto, campoValor, campoDataVencimento;
+    private JLabel labelFornecedor, labelObjeto, labelValor, labelDataVencimento;
+    private JButton botaoSalvar, botaoVoltar;
+
     private ContratoDAO contratoDAO;
     private PessoaDAO pessoaDAO;
-    private JButton botaoSalvar;
-   
-    
-    private JLabel labelIdContrato,labelFornecedorId, labelObjeto, labelValor, labelVencimento, labelStatus;
-    
-    public JanelaCadastroContrato() {
-        contratoDAO = new ContratoDAO();
-        pessoaDAO = new PessoaDAO();
+    private Contrato contratoExistente;
+
+    public JanelaCadastroContrato(Frame parent, Contrato contratoParaEditar) {
+        super(parent, true);
+        this.contratoExistente = contratoParaEditar;
+        this.contratoDAO = new ContratoDAO();
+        this.pessoaDAO = new PessoaDAO();
         LanguageManager.getInstance().addObserver(this);
+
         initComponents();
-        carregarFornecedores();
         updateLanguage();
+
+        carregarFornecedores();
+
+        if (contratoExistente != null) {
+            preencherFormulario();
+        } else {
+            campoDataVencimento.setText(LocalDate.now().plusYears(1).toString());
+        }
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                LanguageManager.getInstance().removeObserver(JanelaCadastroContrato.this);
+            }
+        });
     }
-    
-  
-    
+
     private void initComponents() {
-        setSize(400, 400);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setSize(500, 300);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(getParent());
 
         URL iconURL = getClass().getResource("/iconeerp/logo1.png");
         if (iconURL != null) {
@@ -47,144 +63,148 @@ public class JanelaCadastroContrato extends JFrame implements LanguageObserver {
             System.err.println("Erro: Não foi possível encontrar o ícone 'logo1.png'");
         }
 
-        JPanel painelCadastro = new JPanel(new GridLayout(8, 2, 5, 5));
-        painelCadastro.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        labelIdContrato = new JLabel();
-        painelCadastro.add(labelIdContrato);
-        campoIdContrato = new JTextField();
-        painelCadastro.add(campoIdContrato);
-        
-       
-        labelFornecedorId = new JLabel();
-        painelCadastro.add(labelFornecedorId);
-        comboFornecedorId = new JComboBox<>();
-        painelCadastro.add(comboFornecedorId);
-        
+
+        JPanel painelFormulario = new JPanel(new GridLayout(0, 2, 10, 10));
+        painelFormulario.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        labelFornecedor = new JLabel();
+        painelFormulario.add(labelFornecedor);
+        comboFornecedor = new JComboBox<>();
+        painelFormulario.add(comboFornecedor);
+
         labelObjeto = new JLabel();
-        painelCadastro.add(labelObjeto);
-        campoObjetoContrato = new JTextField();
-        painelCadastro.add(campoObjetoContrato);
-        
+        painelFormulario.add(labelObjeto);
+        campoObjeto = new JTextField();
+        painelFormulario.add(campoObjeto);
+
         labelValor = new JLabel();
-        painelCadastro.add(labelValor);
+        painelFormulario.add(labelValor);
         campoValor = new JTextField();
-        painelCadastro.add(campoValor);
-        
-        labelVencimento = new JLabel();
-        painelCadastro.add(labelVencimento);
+        painelFormulario.add(campoValor);
+
+        labelDataVencimento = new JLabel();
+        painelFormulario.add(labelDataVencimento);
         campoDataVencimento = new JTextField();
-        painelCadastro.add(campoDataVencimento);
-        
-        labelStatus = new JLabel();
-        painelCadastro.add(labelStatus);
-        comboStatus = new JComboBox<>(new String[]{"Em Elaboracao", "Ativo"});
-        comboStatus.setSelectedItem("Em Elaboracao"); 
-        painelCadastro.add(comboStatus);
-        
+        painelFormulario.add(campoDataVencimento);
+
+        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         botaoSalvar = new JButton();
-        painelCadastro.add(botaoSalvar);
-        
-        
-        botaoSalvar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                salvarContrato();
-            }
+        botaoVoltar = new JButton();
+        painelBotoes.add(botaoSalvar);
+        painelBotoes.add(botaoVoltar);
+
+        add(painelFormulario, BorderLayout.CENTER);
+        add(painelBotoes, BorderLayout.SOUTH);
+
+        botaoSalvar.addActionListener(e -> salvarContrato());
+        botaoVoltar.addActionListener(e -> {
+            LanguageManager.getInstance().removeObserver(this);
+            dispose();
         });
+    }
+
+    @Override
+    public void updateLanguage() {
+        ResourceBundle messages = LanguageManager.getInstance().getMessages();
+
+        if (contratoExistente != null) {
+            setTitle(messages.getString("janelaCadastroContrato.titulo.edicao"));
+        } else {
+            setTitle(messages.getString("janelaCadastroContrato.titulo.cadastro"));
+        }
+
+        labelFornecedor.setText(messages.getString("janelaCadastroContrato.label.fornecedor"));
+        labelObjeto.setText(messages.getString("janelaCadastroContrato.label.objeto"));
+        labelValor.setText(messages.getString("janelaCadastroContrato.label.valor"));
+        labelDataVencimento.setText(messages.getString("janelaCadastroContrato.label.dataVencimento"));
+        botaoSalvar.setText(messages.getString("janelaCadastroPessoa.botao.salvar"));
+        botaoVoltar.setText(messages.getString("janelaListagemPessoas.botao.voltar"));
         
-        add(painelCadastro);
-    } 
-    
+        carregarFornecedores();
+        preencherFormulario();
+    }
+
     private void carregarFornecedores() {
-    	try {
-    		
-    	comboFornecedorId.removeAllItems();
-    	
-    	 List<Pessoa> pessoas = pessoaDAO.listarTodos();
-    	
-    	 List<Pessoa> fornecedores = pessoas.stream()
-    			 .filter(p -> p.getTipo() == 2)
-    			 .collect(Collectors.toList());
-    	
-    
-    	for(Pessoa fornecedor : fornecedores) {
-    		comboFornecedorId.addItem(fornecedor.getId() + "-" + fornecedor.getNome());
-    	}
-    	
-    	if(fornecedores.isEmpty()) {
-    		comboFornecedorId.addItem("Nenhum Fornecedor Cadastrado");
-    	}
-    }catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao carregar fornecedores: " + e.getMessage(),  "Erro", JOptionPane.ERROR_MESSAGE);
-            comboFornecedorId.addItem("Erro ao carregar");
+        List<Pessoa> todasPessoas = pessoaDAO.listarTodos();
+        List<Pessoa> fornecedores = todasPessoas.stream()
+            .filter(p -> p.getTipo() == 2)
+            .collect(Collectors.toList());
+        
+        comboFornecedor.removeAllItems();
+        for (Pessoa f : fornecedores) {
+            comboFornecedor.addItem(f);
+        }
+    }
+
+    private void preencherFormulario() {
+        if (contratoExistente != null) {
+            campoObjeto.setText(contratoExistente.getObjetoContrato());
+            campoValor.setText(String.valueOf(contratoExistente.getValor()));
+            campoDataVencimento.setText(contratoExistente.getDataVencimento().toString());
+
+            for (int i = 0; i < comboFornecedor.getItemCount(); i++) {
+                if (comboFornecedor.getItemAt(i).getId().equals(contratoExistente.getFornecedorId())) {
+                    comboFornecedor.setSelectedIndex(i);
+                    break;
+                }
+            }
         }
     }
 
     private void salvarContrato() {
-        try {
-            if (campoIdContrato.getText().trim().isEmpty() ||
-            	comboFornecedorId.getSelectedItem() == null || 
-                campoObjetoContrato.getText().trim().isEmpty() ||
-                campoValor.getText().trim().isEmpty() ||
-                campoDataVencimento.getText().trim().isEmpty()) {
-                
-                JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Erro", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            String id = campoIdContrato.getText().trim();
-            String fornecedorId = (String) comboFornecedorId.getSelectedItem();
-            String objetoContrato = campoObjetoContrato.getText().trim();
-            double valor = Double.parseDouble(campoValor.getText().trim());
-            
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            LocalDate dataVencimento = LocalDate.parse(campoDataVencimento.getText().trim(), formatter);
-            LocalDate dataCriacao = LocalDate.now();
-            String status = (String) comboStatus.getSelectedItem();
-            
-           
-            
-            Contrato contrato = new Contrato(
-                    id,                   // String id
-                    fornecedorId,         // String fornecedorId  
-                    objetoContrato,       // String objetoContrato
-                    valor,                // double valor
-                    dataCriacao,          // LocalDate dataCriacao
-                    dataVencimento,       // LocalDate dataVencimento
-                    status                // String status
-                );
-            
-            contratoDAO.salvar(contrato);
-            
-            JOptionPane.showMessageDialog(this, "Contrato salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            limparCampos();
-            
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Valor inválido!", "Erro", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao salvar contrato: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-     
-    private void limparCampos() {
-    	campoIdContrato.setText("");
-        comboFornecedorId.setSelectedIndex(0);
-        campoObjetoContrato.setText("");
-        campoValor.setText("");
-        campoDataVencimento.setText("");
-        comboStatus.setSelectedItem("Em Elaboracao");
-    }
-     
-    @Override
-    public void updateLanguage() {
-    	labelIdContrato.setText("ID do Contrato:");
-        labelFornecedorId.setText("ID do Fornecedor:");
-        labelObjeto.setText("Objeto do Contrato:");
-        labelValor.setText("Valor:");
-        labelVencimento.setText("Data Vencimento:");
-        labelStatus.setText("Status:");
-        botaoSalvar.setText("Salvar");
+        ResourceBundle messages = LanguageManager.getInstance().getMessages();
         
+        Pessoa fornecedorSelecionado = (Pessoa) comboFornecedor.getSelectedItem();
+        String valorStr = campoValor.getText().trim();
+        String dataVencStr = campoDataVencimento.getText().trim();
+
+        if (fornecedorSelecionado == null || valorStr.isEmpty() || dataVencStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, messages.getString("janelaCadastroContrato.dialogo.erroValidacao.mensagem"), messages.getString("janelaCadastroContrato.dialogo.erroValidacao.titulo"), JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        double valor;
+        LocalDate dataVencimento;
+
+        try {
+            valor = Double.parseDouble(valorStr.replace(",", "."));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, messages.getString("janelaCadastroContrato.dialogo.erroFormato.valor"), messages.getString("janelaCadastroContrato.dialogo.erroFormato.titulo"), JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            dataVencimento = LocalDate.parse(dataVencStr);
+        } catch (DateTimeParseException e) {
+            JOptionPane.showMessageDialog(this, messages.getString("janelaCadastroContrato.dialogo.erroFormato.data"), messages.getString("janelaCadastroContrato.dialogo.erroFormato.titulo"), JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        String objeto = campoObjeto.getText().trim();
+
+        if (contratoExistente == null) {
+            String id = UUID.randomUUID().toString();
+            Contrato novoContrato = new Contrato(
+                id,
+                fornecedorSelecionado.getId(),
+                objeto,
+                valor,
+                LocalDate.now(),
+                dataVencimento,
+                messages.getString("janelaCadastroContrato.status.emElaboracao")
+            );
+            contratoDAO.salvar(novoContrato);
+            JOptionPane.showMessageDialog(this, messages.getString("janelaCadastroContrato.dialogo.salvoSucesso"));
+        } else {
+            contratoExistente.setFornecedorId(fornecedorSelecionado.getId());
+            contratoExistente.setObjetoContrato(objeto);
+            contratoExistente.setValor(valor);
+            contratoExistente.setDataVencimento(dataVencimento);
+            contratoDAO.atualizar(contratoExistente);
+            JOptionPane.showMessageDialog(this, messages.getString("janelaCadastroContrato.dialogo.atualizadoSucesso"));
+        }
+
+        LanguageManager.getInstance().removeObserver(this);
+        dispose();
     }
-} 
+}
